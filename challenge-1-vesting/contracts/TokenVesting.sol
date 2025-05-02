@@ -31,17 +31,25 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 contract TokenVesting is Ownable(msg.sender), Pausable, ReentrancyGuard {
     struct VestingSchedule {
     // TODO: Define the vesting schedule struct
+    uint256 totalAmount;
+    uint256 startTime;
+    uint256 cliffDuration;
+    uint256 vestingDuration;
+    uint256 amountClaimed;
+    bool revokedStatus;
     }
 
     // Token being vested
     // TODO: Add state variables
-
+    public address tokenAddress;
 
     // Mapping from beneficiary to vesting schedule
     // TODO: Add state variables
+    public mapping(address => VestingSchedule) beneficiaryToVestingSchedule;
 
     // Whitelist of beneficiaries
     // TODO: Add state variables
+    public mapping (address => bool) whitelist;
 
     // Events
     event VestingScheduleCreated(address indexed beneficiary, uint256 amount);
@@ -50,9 +58,9 @@ contract TokenVesting is Ownable(msg.sender), Pausable, ReentrancyGuard {
     event BeneficiaryWhitelisted(address indexed beneficiary);
     event BeneficiaryRemovedFromWhitelist(address indexed beneficiary);
 
-    constructor(address tokenAddress) {
-           // TODO: Initialize the contract
-
+    constructor(address _tokenAddress) {
+        // TODO: Initialize the contract
+        tokenAddress = _tokenAddress;
     }
 
     // Modifier to check if beneficiary is whitelisted
