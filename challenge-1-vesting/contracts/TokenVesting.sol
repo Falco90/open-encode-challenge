@@ -41,15 +41,15 @@ contract TokenVesting is Ownable(msg.sender), Pausable, ReentrancyGuard {
 
     // Token being vested
     // TODO: Add state variables
-    public address tokenAddress;
+    address public tokenAddress;
 
     // Mapping from beneficiary to vesting schedule
     // TODO: Add state variables
-    public mapping(address => VestingSchedule) beneficiaryToVestingSchedule;
+    mapping(address => VestingSchedule) public beneficiaryToVestingSchedule;
 
     // Whitelist of beneficiaries
     // TODO: Add state variables
-    public mapping (address => bool) whitelist;
+    mapping (address => bool) public whitelist;
 
     // Events
     event VestingScheduleCreated(address indexed beneficiary, uint256 amount);
@@ -83,11 +83,25 @@ contract TokenVesting is Ownable(msg.sender), Pausable, ReentrancyGuard {
     function createVestingSchedule(
         address beneficiary,
         uint256 amount,
-        uint256 cliffDuration,
-        uint256 vestingDuration,
-        uint256 startTime
+        uint256 _cliffDuration,
+        uint256 _vestingDuration,
+        uint256 _startTime
     ) external onlyOwner onlyWhitelisted(beneficiary) whenNotPaused {
         // TODO: Implement vesting schedule creation
+        beneficiaryToVestingSchedule[beneficiary] = VestingSchedule({
+            totalAmount: amount,
+            startTime: _startTime,
+            cliffDuration: _cliffDuration,
+            vestingDuration: _vestingDuration,
+            amountClaimed: 0,
+            revokedStatus: false
+        });
+
+        // Send tokens to vesting contract
+        IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount);
+
+        // Emit event
+        emit VestingScheduleCreated(beneficiary, amount);
     }
 
     function calculateVestedAmount(
